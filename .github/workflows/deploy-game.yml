@@ -1,0 +1,64 @@
+# Template: Copy this to your game repo's .github/workflows/deploy-game.yml
+# Replace <YOUR_SERVER_URL> and set ADMIN_SECRET in repo secrets.
+
+name: Build and Deploy Game Plugin
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build plugin bundle
+        run: pnpm build:plugin
+
+      - name: Upload to GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
+
+      - name: Register with TMBOM server
+        env:
+          ADMIN_SECRET: ${{ secrets.ADMIN_SECRET }}
+          SERVER_URL: ${{ vars.SERVER_URL }}
+          GAME_TYPE: ${{ vars.GAME_TYPE }}
+          DISPLAY_NAME: ${{ vars.DISPLAY_NAME }}
+          DESCRIPTION: ${{ vars.DESCRIPTION }}
+          ICON: ${{ vars.ICON }}
+        run: |
+          PAGES_URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}"
+          curl -f -X POST "${SERVER_URL}/api/admin/games" \
+            -H "Authorization: Bearer ${ADMIN_SECRET}" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"gameType\": \"${GAME_TYPE}\",
+              \"displayName\": \"${DISPLAY_NAME}\",
+              \"description\": \"${DESCRIPTION}\",
+              \"icon\": \"${ICON}\",
+              \"manifestUrl\": \"${PAGES_URL}/manifest.js\"
+            }"
