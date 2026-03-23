@@ -3,6 +3,7 @@
 import type { PresenterViewProps } from "@threecyborgs/game-sdk";
 import { Leaderboard } from "../../shims/ui";
 import type { LeaderboardData, Horse } from "../types";
+import { HorseTrack } from "../shared/HorseTrack";
 
 /**
  * Horse Race presenter view component.
@@ -32,11 +33,13 @@ export function HorseRacePresenterView({
     );
   }
 
-  // Racing phase
+  // Racing phase — prefer live presenterEvents positions over snapshot
   if (phase === "racing") {
+    const livePositions = presenterEvents["race:positions"] as { horses: Horse[] } | undefined;
+    const liveHorses = livePositions?.horses ?? horses;
     return (
-      <RacingPhaseDisplay 
-        horses={horses}
+      <RacingPhaseDisplay
+        horses={liveHorses}
         raceNumber={raceNumber}
         totalRaces={totalRaces}
       />
@@ -110,17 +113,15 @@ function BettingPhaseDisplay({
   );
 }
 
-function RacingPhaseDisplay({ 
+function RacingPhaseDisplay({
   horses,
   raceNumber,
-  totalRaces 
-}: { 
+  totalRaces,
+}: {
   horses: Horse[];
   raceNumber: number;
   totalRaces: number;
 }) {
-  const sortedHorses = [...horses].sort((a, b) => b.position - a.position);
-
   return (
     <div className="flex flex-col items-center gap-8 w-full max-w-4xl mx-auto px-4">
       <div className="text-center">
@@ -131,30 +132,8 @@ function RacingPhaseDisplay({
           Race in Progress!
         </h2>
       </div>
-
-      <div className="w-full space-y-4">
-        {sortedHorses.map((horse, idx) => (
-          <div key={horse.id} className="flex items-center gap-4">
-            <span className="text-2xl w-8">
-              {idx === 0 && "🥇"}
-              {idx === 1 && "🥈"}
-              {idx === 2 && "🥉"}
-            </span>
-            <div className="flex-1">
-              <div className="flex items-center justify-between mb-1">
-                <span className="font-bold text-white">{horse.name}</span>
-                <span className="text-gray-400">{horse.position}%</span>
-              </div>
-              <div className="w-full bg-gray-700 rounded-full h-4 overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all duration-500"
-                  style={{ width: `${horse.position}%` }}
-                />
-              </div>
-            </div>
-            <span className="text-3xl">🏇</span>
-          </div>
-        ))}
+      <div className="w-full">
+        <HorseTrack horses={horses} />
       </div>
     </div>
   );

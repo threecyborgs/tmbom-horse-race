@@ -454,15 +454,14 @@ export class HorseRaceGame extends BaseGame<HorseRaceState> {
       }
     }
 
-    // Emit position update
+    const positionPayload = {
+      horses: this.state.horses.map((h) => ({ id: h.id, name: h.name, position: Math.round(h.position) })),
+    };
+
+    // Emit position update to players (via WebRTC broadcast) and presenter separately
     const events: GameEvent[] = [
-      {
-        type: 'race:positions',
-        payload: {
-          horses: this.state.horses.map((h) => ({ id: h.id, name: h.name, position: Math.round(h.position) })),
-        },
-        target: 'all',
-      },
+      { type: 'race:positions', payload: positionPayload, target: 'all' },
+      { type: 'race:positions', payload: positionPayload, target: 'presenter' },
     ];
 
     // Check if ALL horses have finished (reached 100)

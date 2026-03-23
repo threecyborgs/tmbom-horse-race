@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { PlayerViewProps } from "@threecyborgs/game-sdk";
 import type { HorseRaceState } from "../../client/types";
 import type { GameOverData } from "../types";
+import { HorseTrack } from "../shared/HorseTrack";
 
 /**
  * Horse Race player view component.
@@ -27,21 +28,6 @@ export function HorseRacePlayerView({ state, actions }: PlayerViewProps) {
   const winner = hrState?.winner ?? null;
   const finishOrder = hrState?.finishOrder ?? [];
 
-  // Sort horses: use finish order for finished horses, then by position for still racing
-  const sortedHorses = [...horses].sort((a, b) => {
-    const aFinished = finishOrder.includes(a.id);
-    const bFinished = finishOrder.includes(b.id);
-    
-    // Both finished: use finish order
-    if (aFinished && bFinished) {
-      return finishOrder.indexOf(a.id) - finishOrder.indexOf(b.id);
-    }
-    // One finished: finished horse comes first
-    if (aFinished) return -1;
-    if (bFinished) return 1;
-    // Neither finished: sort by position descending
-    return b.position - a.position;
-  });
 
   const [selectedHorse, setSelectedHorse] = useState<string | null>(null);
   const [betAmount, setBetAmount] = useState<number>(50);
@@ -136,51 +122,11 @@ export function HorseRacePlayerView({ state, actions }: PlayerViewProps) {
           {isFinished ? "🏁 Race Complete!" : "Race in Progress!"}
         </h2>
         
-        {sortedHorses.map((horse, idx) => {
-          const position = typeof horse.position === 'number' ? horse.position : 0;
-          const isMyHorse = myBet?.horseId === horse.id;
-          
-          return (
-            <div 
-              key={horse.id} 
-              style={{ 
-                marginBottom: '12px', 
-                padding: '12px', 
-                backgroundColor: isMyHorse ? 'rgba(147, 51, 234, 0.3)' : 'rgba(55, 65, 81, 0.5)',
-                borderRadius: '8px',
-                border: isMyHorse ? '2px solid #9333ea' : '1px solid #374151'
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <span style={{ color: 'white', fontWeight: '500' }}>
-                  {idx === 0 && "🥇 "}
-                  {idx === 1 && "🥈 "}
-                  {idx === 2 && "🥉 "}
-                  {horse.name}
-                </span>
-                <span style={{ color: '#9ca3af' }}>{Math.round(position)}%</span>
-              </div>
-              
-              {/* Progress bar track */}
-              <div style={{ 
-                width: '100%', 
-                height: '20px', 
-                backgroundColor: '#111827', 
-                borderRadius: '10px',
-                overflow: 'hidden'
-              }}>
-                {/* Progress bar fill */}
-                <div style={{ 
-                  width: `${position}%`, 
-                  height: '20px', 
-                  backgroundColor: isMyHorse ? '#9333ea' : '#3b82f6',
-                  borderRadius: '10px',
-                  transition: 'width 0.1s'
-                }} />
-              </div>
-            </div>
-          );
-        })}
+        <HorseTrack
+          horses={horses}
+          finishOrder={finishOrder}
+          highlightedHorseId={myBet?.horseId ?? null}
+        />
         
         {myBet && !result && (
           <p style={{ color: '#9ca3af', textAlign: 'center', marginTop: '16px' }}>
