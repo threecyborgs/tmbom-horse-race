@@ -11,7 +11,7 @@ import { HORSE_RACE_PLAYER_PHASES } from "./ui/player";
 
 export const manifest: GameManifest = {
   gameType: "horse-race",
-  displayName: "Horse Race",
+  displayName: "Turbo Horse Race",
   description: "Bet on horses and watch them race! The best gamblers win.",
   icon: "🏇",
   minPlayers: 1,
