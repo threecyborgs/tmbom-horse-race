@@ -1,6 +1,6 @@
 {
   "name": "@threecyborgs/game-horse-race",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "scripts": {
     "build:plugin": "vite build --config vite.lib.config.ts",
