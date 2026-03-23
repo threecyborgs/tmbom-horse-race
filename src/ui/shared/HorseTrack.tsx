@@ -40,13 +40,13 @@ export function HorseTrack({ horses, finishOrder = [], highlightedHorseId }: Hor
             style={{
               marginBottom: '12px',
               padding: '12px',
-              backgroundColor: isHighlighted ? 'rgba(147, 51, 234, 0.2)' : 'rgba(55, 65, 81, 0.4)',
+              backgroundColor: isHighlighted ? 'rgba(147, 51, 234, 0.3)' : 'rgba(55, 65, 81, 0.5)',
               borderRadius: '8px',
               border: isHighlighted ? '2px solid #9333ea' : '1px solid #374151',
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-              <span style={{ color: 'white', fontWeight: '500' }}>
+              <span style={{ color: 'white', fontWeight: 'bold' }}>
                 {idx === 0 && '🥇 '}
                 {idx === 1 && '🥈 '}
                 {idx === 2 && '🥉 '}
